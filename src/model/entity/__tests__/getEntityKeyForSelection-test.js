@@ -36,7 +36,7 @@ const NON_COLLAPSED_SELECTION = initialSelectionState.merge({
 });
 
 const setEntityMutability = mutability => {
-  contentState.getEntityMap().__get = () => ({
+  contentState.getEntityMap().getEntity = () => ({
     getMutability: () => mutability,
   });
 };

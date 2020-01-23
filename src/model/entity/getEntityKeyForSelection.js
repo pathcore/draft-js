@@ -59,7 +59,7 @@ function getEntityKeyForSelection(
  */
 function filterKey(entityMap: EntityMap, entityKey: ?string): ?string {
   if (notEmptyKey(entityKey)) {
-    const entity = entityMap.__get(entityKey);
+    const entity = entityMap.getEntity(entityKey);
     return entity.getMutability() === 'MUTABLE' ? entityKey : null;
   }
   return null;

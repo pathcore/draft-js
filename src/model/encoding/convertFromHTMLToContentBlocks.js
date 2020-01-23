@@ -14,13 +14,12 @@
 import type {BlockNodeRecord} from 'BlockNodeRecord';
 import type {DraftBlockRenderMap} from 'DraftBlockRenderMap';
 import type {DraftInlineStyle} from 'DraftInlineStyle';
-import type {EntityMap} from 'EntityMap';
 
 const CharacterMetadata = require('CharacterMetadata');
 const ContentBlock = require('ContentBlock');
 const ContentBlockNode = require('ContentBlockNode');
 const DefaultDraftBlockRenderMap = require('DefaultDraftBlockRenderMap');
-const DraftEntity = require('DraftEntity');
+const EntityMap = require('EntityMap');
 const URI = require('URI');
 
 const cx = require('cx');
@@ -282,7 +281,7 @@ class ContentBlocksBuilder {
   contentBlocks: Array<BlockNodeRecord> = [];
 
   // Entity map use to store links and images found in the HTML nodes
-  entityMap: EntityMap = DraftEntity;
+  entityMap: EntityMap = new EntityMap();
 
   // Map HTML tags to draftjs block types and disambiguation function
   blockTypeMap: BlockTypeMap;
@@ -307,7 +306,7 @@ class ContentBlocksBuilder {
     this.currentDepth = 0;
     this.currentEntity = null;
     this.currentText = '';
-    this.entityMap = DraftEntity;
+    this.entityMap = new EntityMap();
     this.wrapper = null;
     this.contentBlocks = [];
   }
@@ -595,11 +594,8 @@ class ContentBlocksBuilder {
     });
 
     // TODO: T15530363 update this when we remove DraftEntity entirely
-    this.currentEntity = this.entityMap.__create(
-      'IMAGE',
-      'IMMUTABLE',
-      entityConfig,
-    );
+    this.entityMap = this.entityMap.create('IMAGE', 'IMMUTABLE', entityConfig);
+    this.currentEntity = this.entityMap.getLastCreatedEntityKey();
 
     // The child text node cannot just have a space or return as content (since
     // we strip those out), unless the image is for presentation only.
@@ -641,12 +637,12 @@ class ContentBlocksBuilder {
     });
 
     entityConfig.url = new URI(anchor.href).toString();
-    // TODO: T15530363 update this when we remove DraftEntity completely
-    this.currentEntity = this.entityMap.__create(
+    this.entityMap = this.entityMap.create(
       'LINK',
       'MUTABLE',
       entityConfig || {},
     );
+    this.currentEntity = this.entityMap.getLastCreatedEntityKey();
 
     blockConfigs.push(
       ...this._toBlockConfigs(Array.from(node.childNodes), style),

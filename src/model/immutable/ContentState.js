@@ -13,7 +13,6 @@
 
 import type {BlockMap} from 'BlockMap';
 import type {BlockNodeRecord} from 'BlockNodeRecord';
-import type DraftEntityInstance from 'DraftEntityInstance';
 import type {DraftEntityMutability} from 'DraftEntityMutability';
 import type {DraftEntityType} from 'DraftEntityType';
 
@@ -21,7 +20,8 @@ const BlockMapBuilder = require('BlockMapBuilder');
 const CharacterMetadata = require('CharacterMetadata');
 const ContentBlock = require('ContentBlock');
 const ContentBlockNode = require('ContentBlockNode');
-const DraftEntity = require('DraftEntity');
+const DraftEntityInstance = require('DraftEntityInstance');
+const EntityMap = require('EntityMap');
 const SelectionState = require('SelectionState');
 
 const generateRandomKey = require('generateRandomKey');
@@ -32,7 +32,7 @@ const sanitizeDraftText = require('sanitizeDraftText');
 const {List, Record, Repeat} = Immutable;
 
 const defaultRecord: {
-  entityMap: ?any,
+  entityMap: ?EntityMap,
   blockMap: ?BlockMap,
   selectionBefore: ?SelectionState,
   selectionAfter: ?SelectionState,
@@ -47,9 +47,8 @@ const defaultRecord: {
 const ContentStateRecord = (Record(defaultRecord): any);
 
 class ContentState extends ContentStateRecord {
-  getEntityMap(): any {
-    // TODO: update this when we fully remove DraftEntity
-    return DraftEntity;
+  getEntityMap(): EntityMap {
+    return this.get('entityMap');
   }
 
   getBlockMap(): BlockMap {
@@ -122,8 +121,7 @@ class ContentState extends ContentStateRecord {
   }
 
   getLastCreatedEntityKey(): string {
-    // TODO: update this when we fully remove DraftEntity
-    return DraftEntity.__getLastCreatedEntityKey();
+    return this.getEntityMap().getLastCreatedEntityKey();
   }
 
   hasText(): boolean {
@@ -140,48 +138,39 @@ class ContentState extends ContentStateRecord {
     mutability: DraftEntityMutability,
     data?: Object,
   ): ContentState {
-    // TODO: update this when we fully remove DraftEntity
-    DraftEntity.__create(type, mutability, data);
-    return this;
+    return this.addEntity(
+      new DraftEntityInstance({type, mutability, data: data || {}}),
+    );
   }
 
   mergeEntityData(
     key: string,
     toMerge: {[key: string]: any, ...},
   ): ContentState {
-    // TODO: update this when we fully remove DraftEntity
-    DraftEntity.__mergeData(key, toMerge);
-    return this;
+    return this.set('entityMap', this.getEntityMap().mergeData(key, toMerge));
   }
 
   replaceEntityData(
     key: string,
     newData: {[key: string]: any, ...},
   ): ContentState {
-    // TODO: update this when we fully remove DraftEntity
-    DraftEntity.__replaceData(key, newData);
-    return this;
+    return this.set('entityMap', this.getEntityMap().replaceData(key, newData));
   }
 
   addEntity(instance: DraftEntityInstance): ContentState {
-    // TODO: update this when we fully remove DraftEntity
-    DraftEntity.__add(instance);
-    return this;
+    return this.set('entityMap', this.getEntityMap().add(instance));
   }
 
   getEntity(key: string): DraftEntityInstance {
-    // TODO: update this when we fully remove DraftEntity
-    return DraftEntity.__get(key);
+    return this.getEntityMap().getEntity(key);
   }
 
   static createFromBlockArray(
-    // TODO: update flow type when we completely deprecate the old entity API
     blocks:
       | Array<BlockNodeRecord>
       | {contentBlocks: Array<BlockNodeRecord>, ...},
-    entityMap: ?any,
+    entityMap: ?EntityMap,
   ): ContentState {
-    // TODO: remove this when we completely deprecate the old entity API
     const theBlocks = Array.isArray(blocks) ? blocks : blocks.contentBlocks;
     const blockMap = BlockMapBuilder.createFromArray(theBlocks);
     const selectionState = blockMap.isEmpty()
@@ -189,7 +178,7 @@ class ContentState extends ContentStateRecord {
       : SelectionState.createEmpty(blockMap.first().getKey());
     return new ContentState({
       blockMap,
-      entityMap: entityMap || DraftEntity,
+      entityMap: entityMap || new EntityMap(),
       selectionBefore: selectionState,
       selectionAfter: selectionState,
     });

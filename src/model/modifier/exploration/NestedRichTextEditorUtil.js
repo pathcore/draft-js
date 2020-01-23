@@ -251,7 +251,7 @@ const NestedRichTextEditorUtil: RichTextUtils = {
       .slice(selection.getStartOffset(), selection.getEndOffset())
       .some(v => {
         const entity = v.getEntity();
-        return !!entity && entityMap.__get(entity).getType() === 'LINK';
+        return !!entity && entityMap.getEntity(entity).getType() === 'LINK';
       });
   },
 

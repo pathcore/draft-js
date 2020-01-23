@@ -20,9 +20,10 @@ import type {RawDraftContentState} from 'RawDraftContentState';
 const ContentBlock = require('ContentBlock');
 const ContentBlockNode = require('ContentBlockNode');
 const ContentState = require('ContentState');
-const DraftEntity = require('DraftEntity');
+const DraftEntityInstance = require('DraftEntityInstance');
 const DraftTreeAdapter = require('DraftTreeAdapter');
 const DraftTreeInvariants = require('DraftTreeInvariants');
+const EntityMap = require('EntityMap');
 const SelectionState = require('SelectionState');
 
 const createCharacterList = require('createCharacterList');
@@ -243,17 +244,18 @@ const decodeRawBlocks = (
 
 const decodeRawEntityMap = (rawState: RawDraftContentState): * => {
   const {entityMap: rawEntityMap} = rawState;
-  const entityMap = {};
+  let entityMap = new EntityMap();
 
-  // TODO: Update this once we completely remove DraftEntity
   Object.keys(rawEntityMap).forEach(rawEntityKey => {
     const {type, mutability, data} = rawEntityMap[rawEntityKey];
 
-    // get the key reference to created entity
-    entityMap[rawEntityKey] = DraftEntity.__create(
-      type,
-      mutability,
-      data || {},
+    entityMap = entityMap.addAtKey(
+      rawEntityKey,
+      new DraftEntityInstance({
+        type,
+        mutability,
+        data: data || {},
+      }),
     );
   });
 

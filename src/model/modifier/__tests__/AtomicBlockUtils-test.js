@@ -16,17 +16,17 @@ jest.mock('generateRandomKey');
 const AtomicBlockUtils = require('AtomicBlockUtils');
 const BlockMapBuilder = require('BlockMapBuilder');
 const ContentBlockNode = require('ContentBlockNode');
-const Entity = require('DraftEntity');
 const EditorState = require('EditorState');
 const SelectionState = require('SelectionState');
 
 const getSampleStateForTesting = require('getSampleStateForTesting');
 const invariant = require('invariant');
 
-const {editorState, contentState, selectionState} = getSampleStateForTesting();
+let {editorState, contentState, selectionState} = getSampleStateForTesting();
 
 const initialBlock = contentState.getBlockMap().first();
-const ENTITY_KEY = Entity.create('TOKEN', 'MUTABLE');
+contentState = contentState.createEntity('TOKEN', 'MUTABLE');
+const ENTITY_KEY = contentState.getLastCreatedEntityKey();
 const CHARACTER = ' ';
 
 const getInvariantViolation = msg => {

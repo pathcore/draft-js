@@ -117,7 +117,7 @@ function removeForBlock(
   const entityAfterCursor = charAfter ? charAfter.getEntity() : undefined;
 
   if (entityAfterCursor && entityAfterCursor === entityBeforeCursor) {
-    const entity = entityMap.__get(entityAfterCursor);
+    const entity = entityMap.getEntity(entityAfterCursor);
     if (entity.getMutability() !== 'MUTABLE') {
       let {start, end} = getRemovalRange(chars, entityAfterCursor, offset);
       let current;

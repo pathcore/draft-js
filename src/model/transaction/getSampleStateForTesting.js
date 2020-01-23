@@ -16,6 +16,7 @@ const CharacterMetadata = require('CharacterMetadata');
 const ContentBlock = require('ContentBlock');
 const ContentState = require('ContentState');
 const EditorState = require('EditorState');
+const EntityMap = require('EntityMap');
 const SampleDraftInlineStyle = require('SampleDraftInlineStyle');
 const SelectionState = require('SelectionState');
 
@@ -85,7 +86,7 @@ const selectionState = new SelectionState({
 const blockMap = BlockMapBuilder.createFromArray(BLOCKS);
 const contentState = new ContentState({
   blockMap,
-  entityMap: Immutable.OrderedMap(),
+  entityMap: new EntityMap(),
   selectionBefore: selectionState,
   selectionAfter: selectionState,
 }).createEntity({
