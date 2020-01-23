@@ -142,7 +142,7 @@ class ContentState extends ContentStateRecord {
   ): ContentState {
     // TODO: update this when we fully remove DraftEntity
     DraftEntity.__create(type, mutability, data);
-    return this;
+    return this.delete('entityMap').set('entityMap', DraftEntity);
   }
 
   mergeEntityData(
@@ -151,7 +151,7 @@ class ContentState extends ContentStateRecord {
   ): ContentState {
     // TODO: update this when we fully remove DraftEntity
     DraftEntity.__mergeData(key, toMerge);
-    return this;
+    return this.delete('entityMap').set('entityMap', DraftEntity);
   }
 
   replaceEntityData(
@@ -160,13 +160,13 @@ class ContentState extends ContentStateRecord {
   ): ContentState {
     // TODO: update this when we fully remove DraftEntity
     DraftEntity.__replaceData(key, newData);
-    return this;
+    return this.delete('entityMap').set('entityMap', DraftEntity);
   }
 
   addEntity(instance: DraftEntityInstance): ContentState {
     // TODO: update this when we fully remove DraftEntity
     DraftEntity.__add(instance);
-    return this;
+    return this.delete('entityMap').set('entityMap', DraftEntity);
   }
 
   getEntity(key: string): DraftEntityInstance {
